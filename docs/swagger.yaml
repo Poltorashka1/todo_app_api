@@ -1,0 +1,473 @@
+basePath: /
+definitions:
+  request.TagRequest:
+    properties:
+      name:
+        type: string
+    required:
+    - name
+    type: object
+  request.TaskRequest:
+    properties:
+      due:
+        type: string
+      tags:
+        items:
+          type: string
+        type: array
+      text:
+        type: string
+    required:
+    - due
+    - tags
+    - text
+    type: object
+  response.ErrorResponse:
+    properties:
+      error:
+        type: string
+      status:
+        type: integer
+    type: object
+  response.OkResponse:
+    properties:
+      data: {}
+      status:
+        type: integer
+    type: object
+  response.OkResponseEmpty:
+    properties:
+      status:
+        type: integer
+    type: object
+  storage.Tag:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+    type: object
+  storage.Tags:
+    properties:
+      tags:
+        items:
+          $ref: '#/definitions/storage.Tag'
+        type: array
+    type: object
+  storage.Task:
+    properties:
+      due:
+        type: string
+      id:
+        type: integer
+      tags:
+        items:
+          type: string
+        type: array
+      text:
+        type: string
+    type: object
+  storage.Tasks:
+    properties:
+      tasks:
+        items:
+          $ref: '#/definitions/storage.Task'
+        type: array
+    type: object
+host: localhost:8000
+info:
+  contact: {}
+  description: API Server for Todo Application
+  title: Swagger Todo App Application
+  version: "1.0"
+paths:
+  /tag:
+    get:
+      consumes:
+      - application/json
+      description: Get all tags
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.OkResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/storage.Tags'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Get all tags
+      tags:
+      - tags
+    post:
+      consumes:
+      - application/json
+      description: Create new tag with uniq name
+      parameters:
+      - description: Tag name
+        in: body
+        name: tag
+        required: true
+        schema:
+          $ref: '#/definitions/request.TagRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.OkResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Create new tag
+      tags:
+      - tags
+  /tag/:
+    delete:
+      consumes:
+      - application/json
+      description: Delete tags
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.OkResponseEmpty'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Delete tags
+      tags:
+      - tags
+  /tag/{name}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete tag
+      parameters:
+      - description: Tag name
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.OkResponseEmpty'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Delete tag by name
+      tags:
+      - tags
+    get:
+      consumes:
+      - application/json
+      description: Get tag by name
+      parameters:
+      - description: Tag name
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.OkResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/storage.Tag'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Get tag by name
+      tags:
+      - tags
+  /task/:
+    delete:
+      consumes:
+      - application/json
+      description: Delete tasks
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.OkResponseEmpty'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Delete tasks
+      tags:
+      - tasks
+    get:
+      consumes:
+      - application/json
+      description: Get tasks
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successful response
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.OkResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/storage.Tasks'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Get tasks
+      tags:
+      - tasks
+    post:
+      consumes:
+      - application/json
+      description: '"Create new task object with the following fields: text (string,
+        required) - text of the task, tags ([]string, required) - tags associated
+        with the task, due (string, required) - due date of the task in ''2006-01-02T15:04:05Z''
+        format"'
+      parameters:
+      - description: Task
+        in: body
+        name: task
+        required: true
+        schema:
+          $ref: '#/definitions/request.TaskRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.OkResponseEmpty'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Create new task
+      tags:
+      - tasks
+  /task/{due}:
+    get:
+      consumes:
+      - application/json
+      description: 'Get tasks by due date format: 2006-01-02T15:04:05Z'
+      parameters:
+      - description: Due date
+        in: path
+        name: due
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.OkResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/storage.Tasks'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Get tasks by due date
+      tags:
+      - tasks
+  /task/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete task
+      parameters:
+      - description: Task ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.OkResponseEmpty'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Delete task
+      tags:
+      - tasks
+    get:
+      consumes:
+      - application/json
+      description: Get task by id
+      parameters:
+      - description: Task id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.OkResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/storage.Task'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Get task by id
+      tags:
+      - tasks
+  /task/{mode}/:
+    get:
+      consumes:
+      - application/json
+      description: 'Mode: ''full'' - returns tasks who have includes specified tag
+        or tags list in the task tags, ''short'' - returns tasks who have only specified
+        tag or tags list included in the task tags. Tag: tag or tags using , as separator'
+      parameters:
+      - description: Mode
+        in: path
+        name: mode
+        required: true
+        type: string
+      - description: Tags
+        in: query
+        name: tag
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.OkResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/storage.Task'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Get tasks by tag
+      tags:
+      - tasks
+swagger: "2.0"
