@@ -1,6 +1,7 @@
 package response
 
 type Response interface {
+	// GetStatus returns status code
 	GetStatus() int
 }
 
@@ -53,6 +54,5 @@ func OK(args ...any) Response {
 			Status: 200,
 		}
 	}
-	// Todo: implement other cases
 	return nil
 }

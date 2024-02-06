@@ -429,23 +429,22 @@ paths:
       summary: Get task by id
       tags:
       - tasks
-  /task/{mode}/:
+  /task/tag/:
     get:
       consumes:
       - application/json
-      description: 'Mode: ''full'' - returns tasks who have includes specified tag
-        or tags list in the task tags, ''short'' - returns tasks who have only specified
-        tag or tags list included in the task tags. Tag: tag or tags using , as separator'
+      description: 'Tag: returns tasks that have one of the specified tags from the
+        query. Tag: a tag or multiple tags separated by a comma('','') without spaces.
+        Due: due date format: 2006-01-02T15:04:05Z'
       parameters:
-      - description: Mode
-        in: path
-        name: mode
-        required: true
-        type: string
       - description: Tags
         in: query
         name: tag
         required: true
+        type: string
+      - description: Due
+        in: query
+        name: due
         type: string
       produces:
       - application/json
@@ -457,7 +456,7 @@ paths:
             - $ref: '#/definitions/response.OkResponse'
             - properties:
                 data:
-                  $ref: '#/definitions/storage.Task'
+                  $ref: '#/definitions/storage.Tasks'
               type: object
         "400":
           description: Bad Request
@@ -467,7 +466,53 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/response.ErrorResponse'
-      summary: Get tasks by tag
+      summary: Get tasks by tag and due date
       tags:
-      - tasks
+      - tasks_tags
+  /task/tag/{mode}/:
+    get:
+      consumes:
+      - application/json
+      description: 'Mode: "full" returns tasks with the specified tag, or all of the
+        specified tags in the query. "short" returns tasks with only the specified
+        tag, or only all specified tags in the query. Tag: a tag or multiple tags
+        separated by a comma('','') without spaces. Due: due date format: 2006-01-02T15:04:05Z'
+      parameters:
+      - description: Mode
+        in: path
+        name: mode
+        required: true
+        type: string
+      - description: Tags
+        in: query
+        name: tag
+        required: true
+        type: string
+      - description: Due
+        in: query
+        name: due
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.OkResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/storage.Tasks'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Get tasks by mode and tag
+      tags:
+      - tasks_tags
 swagger: "2.0"

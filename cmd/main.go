@@ -3,23 +3,25 @@ package main
 import (
 	"fmt"
 	"github.com/go-chi/chi"
-	_ "web/docs"
-
 	httpSwagger "github.com/swaggo/http-swagger/v2"
 	"log/slog"
 	"os"
+	_ "web/docs"
 	"web/internal/config"
 	"web/internal/logging"
+	"web/internal/server/middleware"
 	"web/internal/server/server"
 	"web/internal/server/server/handlers"
 	"web/internal/storage"
 	"web/internal/storage/sqlite"
 )
 
-// Todo get by tag + due date
+// Todo Exclude tag from query
+
 // Todo delete h.AllTags param and make it in struct or other ideas
 // Todo delete task after 2 days of due date
 // Todo work from due date format make it more simple
+// Todo Update task handler + route + storage
 
 // @title Swagger Todo App Application
 // @version 1.0
@@ -42,11 +44,20 @@ func main() {
 	// Init handlers
 	allHandlers := handlers.NewHandlers(httpServer)
 	httpServer.InitHandlers(allHandlers)
+	// init middlewares
+	initMiddlewares(httpServer)
 	// Init routes
 	initRoutes(httpServer)
 	// Start server
 	httpServer.Start(cfg, log)
+}
 
+func initMiddlewares(server *server.Server) {
+	router := server.Router
+	// recovery from panic
+	router.Use(middleware.PanicRecovery(server.Log))
+	// request execution time
+	router.Use(middleware.HandlerExecutionTime(server.Log))
 }
 
 // initRoutes init routes for server
@@ -58,15 +69,14 @@ func initRoutes(server *server.Server) {
 		// get task by id
 		r.Get("/{id:\\d*}", server.Handlers.GetTaskHandler)
 		// get all tasks by tag or tags list with different modes.
-		// full - returns tasks who have  includes specified tag or tags list in the task tags
-		// short - returns tasks who have only specified tag or tags list included in the task tags
-		r.Route("/{mode:(?:short|full)}", func(r chi.Router) {
-			// for tag in URL
-			//r.Get("/{tag}", server.Handlers.GetTasksByTagHandler)
-			// for tag in query
+		// full - returns tasks who have  includes specified tag or tags list in the task tags.
+		// short - returns tasks who have only specified tag or tags list included in the task tags.
+		// tags - in query using , as separator
+		// due - in query format: 2006-01-02T15:04:05Z
+		r.Route("/tag", func(r chi.Router) {
+			r.Get("/{mode:(?:short|full)}/", server.Handlers.GetTasksByModeAndTagHandler)
 			r.Get("/", server.Handlers.GetTasksByTagHandler)
-		}) //r.Get("/{mode:(?:short|full)}/{tag:[A-Za-z0-9?]+}", server.Handlers.GetTasksByTagHandler)
-
+		})
 		// get tasks by due date
 		r.Get("/{due:[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}(?::|%3A)[0-9]{2}(?::|%3A)[0-9]{2}Z}", server.Handlers.GetTasksByDueDateHandler)
 
@@ -116,6 +126,6 @@ func SqlConnect(cfg *config.Config, log *slog.Logger) storage.Storage {
 
 	db := sqlStorage.Connect(cfg, log)
 
-	log.Info(fmt.Sprintf("Successfully connected to database: %v", cfg.Type))
+	log.Info("Successfully connected to database", slog.String("type", cfg.Type))
 	return db
 }

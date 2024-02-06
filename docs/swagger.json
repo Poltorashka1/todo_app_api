@@ -387,6 +387,137 @@
                 }
             }
         },
+        "/task/tag/": {
+            "get": {
+                "description": "Tag: returns tasks that have one of the specified tags from the query. Tag: a tag or multiple tags separated by a comma(',') without spaces. Due: due date format: 2006-01-02T15:04:05Z",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "tasks_tags"
+                ],
+                "summary": "Get tasks by tag and due date",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Tags",
+                        "name": "tag",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Due",
+                        "name": "due",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.OkResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/storage.Tasks"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/task/tag/{mode}/": {
+            "get": {
+                "description": "Mode: \"full\" returns tasks with the specified tag, or all of the specified tags in the query. \"short\" returns tasks with only the specified tag, or only all specified tags in the query. Tag: a tag or multiple tags separated by a comma(',') without spaces. Due: due date format: 2006-01-02T15:04:05Z",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "tasks_tags"
+                ],
+                "summary": "Get tasks by mode and tag",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Mode",
+                        "name": "mode",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Tags",
+                        "name": "tag",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Due",
+                        "name": "due",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.OkResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/storage.Tasks"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/task/{due}": {
             "get": {
                 "description": "Get tasks by due date format: 2006-01-02T15:04:05Z",
@@ -540,69 +671,6 @@
                     },
                     "404": {
                         "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/response.ErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/response.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/task/{mode}/": {
-            "get": {
-                "description": "Mode: 'full' - returns tasks who have includes specified tag or tags list in the task tags, 'short' - returns tasks who have only specified tag or tags list included in the task tags. Tag: tag or tags using , as separator",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "tasks"
-                ],
-                "summary": "Get tasks by tag",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Mode",
-                        "name": "mode",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Tags",
-                        "name": "tag",
-                        "in": "query",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.OkResponse"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/storage.Task"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
                         "schema": {
                             "$ref": "#/definitions/response.ErrorResponse"
                         }

@@ -1,11 +1,9 @@
 package storage
 
 import (
-	"net/http"
 	"strings"
 )
 
-// Tasks Models
 type Task struct {
 	Id   int      `json:"id"`
 	Text string   `json:"text"`
@@ -25,15 +23,10 @@ func NewTask(id int, text, tags, due string) *Task {
 }
 
 type Tasks struct {
+	Total int    `json:"total"`
 	Tasks []Task `json:"tasks"`
 }
 
-func (t *Tasks) Header() http.Header {
-	return http.Header{}
-
-}
-
-// Tags Models
 type Tag struct {
 	Id   int    `json:"id"`
 	Name string `json:"name"`
