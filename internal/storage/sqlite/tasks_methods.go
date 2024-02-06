@@ -5,12 +5,36 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
+	"time"
 	"web/internal/storage"
 )
 
 // INFO: docs of this function in web/internal/storage/storage.go
 
-func (s *StoreSqlite) CreateTask(text string, tags []string, dueDate string) error {
+func getTasksFromRows(rows *sql.Rows) (*storage.Tasks, error) {
+	const op = "sqlite.getAllTasksFromRows"
+	var allTasks storage.Tasks
+
+	for rows.Next() {
+		var id int
+		var text string
+		var tags string
+		var due string
+		err := rows.Scan(&id, &text, &tags, &due)
+		if err != nil {
+			return nil, err
+		}
+		allTasks.Tasks = append(allTasks.Tasks, *storage.NewTask(id, text, tags, due))
+	}
+
+	if len(allTasks.Tasks) == 0 {
+		return nil, ErrorSqliteNew(http.StatusNotFound, "tasks not found")
+	}
+	allTasks.Total = len(allTasks.Tasks)
+	return &allTasks, nil
+}
+
+func (s *StoreSqlite) CreateTask(text string, tags []string, dueDate *time.Time) error {
 	const op = "sqlite.CreateTask"
 	// add task
 	res, err := s.DataBase.Exec(`INSERT INTO tasks(text, tags, due) VALUES (?, ?, ?)`, text, strings.Join(tags, "; "), dueDate)
@@ -36,7 +60,7 @@ func (s *StoreSqlite) CreateTask(text string, tags []string, dueDate string) err
 	return nil
 }
 
-func (s *StoreSqlite) GetTasksByDueDate(due *string) (*storage.Tasks, error) {
+func (s *StoreSqlite) GetTasksByDueDate(due *time.Time) (*storage.Tasks, error) {
 	const op = "sqlite.GetTasksByDueDate"
 
 	query := fmt.Sprintf(`SELECT id, text, tags, due FROM tasks WHERE due = ?`)
@@ -46,7 +70,7 @@ func (s *StoreSqlite) GetTasksByDueDate(due *string) (*storage.Tasks, error) {
 		return nil, err
 	}
 
-	return getAllTasksFromRows(rows)
+	return getTasksFromRows(rows)
 
 }
 
@@ -60,7 +84,7 @@ func (s *StoreSqlite) GetAllTasks() (*storage.Tasks, error) {
 		return nil, err
 	}
 
-	return getAllTasksFromRows(rows)
+	return getTasksFromRows(rows)
 }
 
 func (s *StoreSqlite) GetTask(id int) (*storage.Task, error) {

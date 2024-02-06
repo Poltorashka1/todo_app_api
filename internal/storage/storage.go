@@ -2,6 +2,7 @@ package storage
 
 import (
 	"log/slog"
+	"time"
 	"web/internal/config"
 )
 
@@ -13,7 +14,7 @@ type Storage interface {
 	Connect(cfg *config.Config, log *slog.Logger) Storage
 
 	// CreateTask creates new task with selected parameters.
-	CreateTask(text string, tags []string, dueDate string) error
+	CreateTask(text string, tags []string, dueDate *time.Time) error
 
 	// GetTask gets task by ID.
 	GetTask(id int) (*Task, error)
@@ -21,12 +22,12 @@ type Storage interface {
 	// GetAllTasksByTag returns all tasks by tag or tags list.
 	// tag []string - list of tags or single tag
 	// returns *storage.AllTasks - list of storage.Task
-	GetAllTasksByTag(tagList []string) (*Tasks, error)
+	GetTasksByTagShort(tagList []string) (*Tasks, error)
 
 	// GetTaskByTag returns tasks only with specified tag or tags list.
 	// tag []string - list of tags or single tag.
 	// returns *storage.AllTasks - list of storage.Task.
-	GetTaskByTag(tagList []string) (*Tasks, error)
+	GetTasksByTagFull(tagList []string) (*Tasks, error)
 
 	// Delete deletes task by ID or all tasks.
 	// TODO check admin rules
@@ -42,13 +43,21 @@ type Storage interface {
 	GetAllTasks() (*Tasks, error)
 
 	// GetTasksByDueDate returns tasks by due date.
-	GetTasksByDueDate(due *string) (*Tasks, error)
+	GetTasksByDueDate(due *time.Time) (*Tasks, error)
 
 	// CreateTag creates new tag
 	CreateTag(name string) error
 
 	// DeleteTag deletes tag
 	DeleteTag(name ...string) error
+
+	// GetTasksByDueAndTag returns tasks by due date and tag
+	GetTasksByDueAndTagFull(tagList []string, due *time.Time) (*Tasks, error)
+	GetTasksByDueAndTagShort(tagList []string, due *time.Time) (*Tasks, error)
+
+	GetTasksByTag(tagList []string) (*Tasks, error)
+
+	GetTasksByTagAndDue(tagList []string, due *time.Time) (*Tasks, error)
 }
 
 type SqlError interface {

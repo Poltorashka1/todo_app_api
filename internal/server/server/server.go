@@ -40,7 +40,7 @@ func (s *Server) InitHandlers(handlers handlerInterfaces.HandlerMethods) {
 func (s *Server) Start(cfg *config.Config, log *slog.Logger) {
 	const op = "httpserver.Server.Start"
 
-	log.Info(fmt.Sprintf("Starting server on %s:%s", cfg.Host, cfg.Port))
+	log.Info("Starting server", slog.String("host", cfg.Host), slog.String("port", cfg.Port))
 	err := http.ListenAndServe(cfg.Host+":"+cfg.Port, s.Router)
 	if err != nil {
 		log.Error(fmt.Sprintf("%v: %v", op, err.Error()))
@@ -48,8 +48,3 @@ func (s *Server) Start(cfg *config.Config, log *slog.Logger) {
 	}
 
 }
-
-// AddRoute adds a new path to the Server mux.
-//func (s *Server) AddRoute(pattern string, fn http.HandlerFunc) {
-//
-//}

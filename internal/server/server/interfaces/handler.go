@@ -19,7 +19,7 @@ type HandlerMethods interface {
 	GetTagsHandler(w http.ResponseWriter, r *http.Request)
 	// GetTagHandler get tag by name
 	GetTagHandler(w http.ResponseWriter, r *http.Request)
-	// GetTasksByTagHandler get tasks by tag or tags list
+	GetTasksByModeAndTagHandler(w http.ResponseWriter, r *http.Request)
 	GetTasksByTagHandler(w http.ResponseWriter, r *http.Request)
 	// GetTasksByDueDateHandler get tasks by due date
 	GetTasksByDueDateHandler(w http.ResponseWriter, r *http.Request)

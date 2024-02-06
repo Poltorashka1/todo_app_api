@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strconv"
 	"time"
+	"web/internal/server/context/request"
 	tagsList "web/storage/tags-list"
 )
 
@@ -54,6 +55,37 @@ func validateTagName(tagName string) error {
 	}
 	if _, err := strconv.Atoi(tagName); err == nil {
 		return fmt.Errorf("tag must not be a digit")
+	}
+	return nil
+}
+
+// validate id don't use because chi do it automatically +-
+func validateId(idString string) (*int, error) {
+	if idString[0] == ' ' {
+		return nil, fmt.Errorf("id param must not be empty")
+	}
+	idInt, err := strconv.Atoi(idString)
+	if err != nil {
+		return nil, fmt.Errorf("id param must be integer") // Todo check using method by due date
+	}
+	if idInt < 0 {
+		return nil, fmt.Errorf("id param must be positive") // Todo check using method by due date
+	}
+	return &idInt, nil
+}
+
+func validateTagsAndDue(tagsList []string, dueDate string, tags *tagsList.TagsList) error {
+	var multiError request.MultiError
+	err := validateTags(tagsList, tags)
+	if err != nil {
+		multiError = append(multiError, err)
+	}
+	err = validateDue(dueDate)
+	if err != nil {
+		multiError = append(multiError, err)
+	}
+	if len(multiError) > 0 {
+		return multiError
 	}
 	return nil
 }
