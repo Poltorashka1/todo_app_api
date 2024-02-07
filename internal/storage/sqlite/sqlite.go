@@ -8,11 +8,15 @@ import (
 	"os"
 	"web/internal/config"
 	"web/internal/storage"
+	"web/internal/storage/sqlite/methods/task"
 )
 
 type StoreSqlite struct {
 	DataBase *sql.DB
 	Log      *slog.Logger
+	// methods responsible for tasks and tags
+	// methods responsible for user
+	*repository.TaskTagMethods
 }
 
 // Connect connect to database
@@ -24,22 +28,5 @@ func (s *StoreSqlite) Connect(cfg *config.Config, log *slog.Logger) storage.Stor
 		log.Error(fmt.Sprintf("%v: %v", op, err.Error()))
 		os.Exit(1)
 	}
-	return &StoreSqlite{DataBase: db, Log: log}
-}
-
-type ErrorSqlite struct {
-	Code    int
-	Message string
-}
-
-func ErrorSqliteNew(code int, message string) *ErrorSqlite {
-	return &ErrorSqlite{Code: code, Message: message}
-}
-
-func (e *ErrorSqlite) Error() string {
-	return e.Message
-}
-
-func (e *ErrorSqlite) GetCode() int {
-	return e.Code
+	return &StoreSqlite{DataBase: db, Log: log, TaskTagMethods: repository.TaskTagMethodsNew(db, log)}
 }

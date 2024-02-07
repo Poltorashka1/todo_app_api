@@ -1,4 +1,4 @@
-package sqlite
+package repository
 
 import (
 	"database/sql"
@@ -7,13 +7,16 @@ import (
 	"strings"
 	"time"
 	"web/internal/storage"
+
+	//"web/internal/sqlite"
+	"web/internal/storage/models"
 )
 
 // INFO: docs of this function in web/internal/storage/storage.go
 
-func getTasksFromRows(rows *sql.Rows) (*storage.Tasks, error) {
+func getTasksFromRows(rows *sql.Rows) (*models.Tasks, error) {
 	const op = "sqlite.getAllTasksFromRows"
-	var allTasks storage.Tasks
+	var allTasks models.Tasks
 
 	for rows.Next() {
 		var id int
@@ -24,17 +27,17 @@ func getTasksFromRows(rows *sql.Rows) (*storage.Tasks, error) {
 		if err != nil {
 			return nil, err
 		}
-		allTasks.Tasks = append(allTasks.Tasks, *storage.NewTask(id, text, tags, due))
+		allTasks.Tasks = append(allTasks.Tasks, *models.NewTask(id, text, tags, due))
 	}
 
 	if len(allTasks.Tasks) == 0 {
-		return nil, ErrorSqliteNew(http.StatusNotFound, "tasks not found")
+		return nil, storage.ErrorSqlNew(http.StatusNotFound, "tasks not found")
 	}
 	allTasks.Total = len(allTasks.Tasks)
 	return &allTasks, nil
 }
 
-func (s *StoreSqlite) CreateTask(text string, tags []string, dueDate *time.Time) error {
+func (s *TaskTagMethods) CreateTask(text string, tags []string, dueDate *time.Time) error {
 	const op = "sqlite.CreateTask"
 	// add task
 	res, err := s.DataBase.Exec(`INSERT INTO tasks(text, tags, due) VALUES (?, ?, ?)`, text, strings.Join(tags, "; "), dueDate)
@@ -60,7 +63,7 @@ func (s *StoreSqlite) CreateTask(text string, tags []string, dueDate *time.Time)
 	return nil
 }
 
-func (s *StoreSqlite) GetTasksByDueDate(due *time.Time) (*storage.Tasks, error) {
+func (s *TaskTagMethods) GetTasksByDueDate(due *time.Time) (*models.Tasks, error) {
 	const op = "sqlite.GetTasksByDueDate"
 
 	query := fmt.Sprintf(`SELECT id, text, tags, due FROM tasks WHERE due = ?`)
@@ -75,7 +78,7 @@ func (s *StoreSqlite) GetTasksByDueDate(due *time.Time) (*storage.Tasks, error) 
 }
 
 // GetAllTasks returns all tasks
-func (s *StoreSqlite) GetAllTasks() (*storage.Tasks, error) {
+func (s *TaskTagMethods) GetAllTasks() (*models.Tasks, error) {
 	const op = "sqlite.GetAllTasks"
 
 	rows, err := s.DataBase.Query(`SELECT id, text, tags, due FROM tasks`)
@@ -87,7 +90,7 @@ func (s *StoreSqlite) GetAllTasks() (*storage.Tasks, error) {
 	return getTasksFromRows(rows)
 }
 
-func (s *StoreSqlite) GetTask(id int) (*storage.Task, error) {
+func (s *TaskTagMethods) GetTask(id int) (*models.Task, error) {
 	const op = "sqlite.GetTask"
 
 	rows, err := s.DataBase.Query(`SELECT id, text, tags, due FROM tasks WHERE id = ?`, id)
@@ -106,13 +109,13 @@ func (s *StoreSqlite) GetTask(id int) (*storage.Task, error) {
 			s.Log.Error(fmt.Sprintf("%s: %s", op, err.Error()))
 			return nil, err
 		}
-		task := storage.NewTask(id, text, tags, due)
+		task := models.NewTask(id, text, tags, due)
 		return task, nil
 	}
-	return nil, ErrorSqliteNew(http.StatusNotFound, "task not found")
+	return nil, storage.ErrorSqlNew(http.StatusNotFound, "task not found")
 }
 
-func (s *StoreSqlite) DeleteTask(args ...string) error {
+func (s *TaskTagMethods) DeleteTask(args ...string) error {
 	const op = "sqlite.Delete"
 	var err error
 	var result sql.Result
@@ -132,7 +135,7 @@ func (s *StoreSqlite) DeleteTask(args ...string) error {
 		return err
 	}
 	if count, _ := result.RowsAffected(); count == 0 {
-		return ErrorSqliteNew(http.StatusNotFound, "task not found")
+		return storage.ErrorSqlNew(http.StatusNotFound, "task not found")
 	}
 
 	return nil

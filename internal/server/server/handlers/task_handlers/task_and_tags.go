@@ -8,6 +8,7 @@ import (
 	"time"
 	"web/internal/server/context/response"
 	"web/internal/storage"
+	"web/internal/storage/models"
 )
 
 // GetTasksByTagHandler returns tasks that have one of the specified tags from the query
@@ -23,12 +24,12 @@ import (
 // @Failure 500 {object} response.ErrorResponse
 // @Router /task/tag/ [get]
 // Context from Function internal/server/server/handlers/task.go:handlers.*Handlers.GetTasksByTagOrByTagAndDueHandler
-func (h *Handlers) GetTasksByTagHandler(w http.ResponseWriter, r *http.Request) {
+func (h *TaskHandler) GetTasksByTagHandler(w http.ResponseWriter, r *http.Request) {
 	query := r.URL.Query()
 	tagList := strings.Split(query.Get("tag"), ",")
 	due := query.Get("due")
 
-	var tasks *storage.Tasks
+	var tasks *models.Tasks
 	var err error
 
 	switch due {
@@ -71,10 +72,10 @@ func (h *Handlers) GetTasksByTagHandler(w http.ResponseWriter, r *http.Request) 
 // @Failure 500 {object} response.ErrorResponse
 // @Router /task/tag/{mode}/ [get]
 // Context from Function internal/server/server/handlers/task.go:handlers.*Handlers.GetTasksByModeAndTagHandler
-func (h *Handlers) GetTasksByModeAndTagHandler(w http.ResponseWriter, r *http.Request) {
+func (h *TaskHandler) GetTasksByModeAndTagHandler(w http.ResponseWriter, r *http.Request) {
 	mode := chi.URLParam(r, "mode")
 
-	var tasks *storage.Tasks
+	var tasks *models.Tasks
 	var err error
 
 	switch mode {
@@ -100,7 +101,7 @@ func (h *Handlers) GetTasksByModeAndTagHandler(w http.ResponseWriter, r *http.Re
 	h.JSON(w, response.OK(tasks))
 }
 
-func (h *Handlers) getTasksFull(r *http.Request) (*storage.Tasks, error) {
+func (h *TaskHandler) getTasksFull(r *http.Request) (*models.Tasks, error) {
 	query := r.URL.Query()
 	tagList := strings.Split(query.Get("tag"), ",")
 	due := query.Get("due")
@@ -123,7 +124,7 @@ func (h *Handlers) getTasksFull(r *http.Request) (*storage.Tasks, error) {
 
 }
 
-func (h *Handlers) getTasksShort(r *http.Request) (*storage.Tasks, error) {
+func (h *TaskHandler) getTasksShort(r *http.Request) (*models.Tasks, error) {
 	query := r.URL.Query()
 	tagList := strings.Split(query.Get("tag"), ",")
 	due := query.Get("due")

@@ -1,4 +1,4 @@
-package sqlite
+package repository
 
 import (
 	"database/sql"
@@ -6,20 +6,20 @@ import (
 	"github.com/mattn/go-sqlite3"
 	"net/http"
 	"web/internal/storage"
+	"web/internal/storage/models"
 )
 
 // INFO: docs of this function in web/internal/storage/storage.go
 
-func (s *StoreSqlite) GetAllTags() (*storage.Tags, error) {
+func (s *TaskTagMethods) GetAllTags() (*models.Tags, error) {
 	const op = "sqlite.GetAllTags"
-
 	rows, err := s.DataBase.Query(`SELECT id, name FROM tags`)
 	if err != nil {
 		s.Log.Error("%v: %v", op, err.Error())
 		return nil, err
 	}
 
-	var allTags storage.Tags
+	var allTags models.Tags
 
 	for rows.Next() {
 		var id int
@@ -29,7 +29,7 @@ func (s *StoreSqlite) GetAllTags() (*storage.Tags, error) {
 			s.Log.Error("%v: %v", op, err.Error())
 			return nil, err
 		}
-		allTags.Tags = append(allTags.Tags, *storage.NewTag(id, name))
+		allTags.Tags = append(allTags.Tags, *models.NewTag(id, name))
 	}
 
 	if len(allTags.Tags) == 0 {
@@ -39,7 +39,7 @@ func (s *StoreSqlite) GetAllTags() (*storage.Tags, error) {
 	return &allTags, nil
 }
 
-func (s *StoreSqlite) GetTag(name string) (*storage.Tag, error) {
+func (s *TaskTagMethods) GetTag(name string) (*models.Tag, error) {
 	const op = "sqlite.GetTag"
 
 	rows, err := s.DataBase.Query(`SELECT id, name FROM tags WHERE name = ?`, name)
@@ -56,19 +56,19 @@ func (s *StoreSqlite) GetTag(name string) (*storage.Tag, error) {
 			s.Log.Error("%v: %v", op, err.Error())
 			return nil, err
 		}
-		return storage.NewTag(id, name), nil
+		return models.NewTag(id, name), nil
 	}
 	return nil, fmt.Errorf("no tags found")
 }
 
-func (s *StoreSqlite) CreateTag(name string) error {
+func (s *TaskTagMethods) CreateTag(name string) error {
 	const op = "sqlite.CreateTag"
 
 	_, err := s.DataBase.Exec(`INSERT INTO tags (name) VALUES (?)`, name)
 	if err != nil {
 		if errSql := err.(sqlite3.Error); errSql.ExtendedCode == sqlite3.ErrConstraintUnique {
 			s.Log.Error(fmt.Sprintf("%s: %s", op, err.Error()))
-			return ErrorSqliteNew(http.StatusConflict, "tag already exists")
+			return storage.ErrorSqlNew(http.StatusConflict, "tag already exists")
 		}
 		s.Log.Error(fmt.Sprintf("%s: %s", op, err.Error()))
 		return err
@@ -76,7 +76,7 @@ func (s *StoreSqlite) CreateTag(name string) error {
 	return nil
 }
 
-func (s *StoreSqlite) DeleteTag(name ...string) error {
+func (s *TaskTagMethods) DeleteTag(name ...string) error {
 	const op = "sqlite.DeleteTag"
 
 	var err error
@@ -96,7 +96,7 @@ func (s *StoreSqlite) DeleteTag(name ...string) error {
 		return err
 	}
 	if count, _ := result.RowsAffected(); count == 0 {
-		return ErrorSqliteNew(http.StatusNotFound, "task not found")
+		return storage.ErrorSqlNew(http.StatusNotFound, "task not found")
 	}
 	return nil
 }

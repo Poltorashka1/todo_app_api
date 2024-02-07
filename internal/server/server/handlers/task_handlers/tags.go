@@ -19,7 +19,7 @@ import (
 // @Failure 400 {object} response.ErrorResponse
 // @Failure 500 {object} response.ErrorResponse
 // @Router /tag [get]
-func (h *Handlers) GetTagsHandler(w http.ResponseWriter, req *http.Request) {
+func (h *TaskHandler) GetTagsHandler(w http.ResponseWriter, req *http.Request) {
 	Tags, err := h.Db.GetAllTags()
 	if err != nil {
 		h.JSON(w, response.Error(http.StatusBadRequest, err))
@@ -41,7 +41,7 @@ func (h *Handlers) GetTagsHandler(w http.ResponseWriter, req *http.Request) {
 // @Failure 400 {object} response.ErrorResponse
 // @Failure 500 {object} response.ErrorResponse
 // @Router /tag/{name} [get]
-func (h *Handlers) GetTagHandler(w http.ResponseWriter, req *http.Request) {
+func (h *TaskHandler) GetTagHandler(w http.ResponseWriter, req *http.Request) {
 	tagName := chi.URLParam(req, "name")
 
 	tag, err := h.Db.GetTag(tagName)
@@ -64,7 +64,7 @@ func (h *Handlers) GetTagHandler(w http.ResponseWriter, req *http.Request) {
 // @Failure 400 {object} response.ErrorResponse
 // @Failure 500 {object} response.ErrorResponse
 // @Router /tag [post]
-func (h *Handlers) CreateTagHandler(w http.ResponseWriter, r *http.Request) {
+func (h *TaskHandler) CreateTagHandler(w http.ResponseWriter, r *http.Request) {
 	var requestData request.TagRequest
 
 	err := h.DecodeJSON(r.Body, &requestData)
@@ -105,7 +105,7 @@ func (h *Handlers) CreateTagHandler(w http.ResponseWriter, r *http.Request) {
 // @Failure 404 {object} response.ErrorResponse
 // @Failure 500 {object} response.ErrorResponse
 // @Router /tag/{name} [delete]
-func (h *Handlers) DeleteTagHandler(w http.ResponseWriter, r *http.Request) {
+func (h *TaskHandler) DeleteTagHandler(w http.ResponseWriter, r *http.Request) {
 	tagName := chi.URLParam(r, "name")
 
 	err := h.Db.DeleteTag(tagName)
@@ -133,7 +133,7 @@ func (h *Handlers) DeleteTagHandler(w http.ResponseWriter, r *http.Request) {
 // @Failure 400 {object} response.ErrorResponse
 // @Failure 500 {object} response.ErrorResponse
 // @Router /tag/ [delete]
-func (h *Handlers) DeleteTagsHandler(w http.ResponseWriter, r *http.Request) {
+func (h *TaskHandler) DeleteTagsHandler(w http.ResponseWriter, r *http.Request) {
 	err := h.Db.DeleteTag()
 	if err != nil {
 		switch errSql := err.(type) {

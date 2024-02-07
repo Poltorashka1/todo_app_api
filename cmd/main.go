@@ -11,7 +11,6 @@ import (
 	"web/internal/logging"
 	"web/internal/server/middleware"
 	"web/internal/server/server"
-	"web/internal/server/server/handlers"
 	"web/internal/storage"
 	"web/internal/storage/sqlite"
 )
@@ -41,9 +40,6 @@ func main() {
 
 	// Create new server
 	httpServer := server.NewServer(&SqlDataBase, log)
-	// Init handlers
-	allHandlers := handlers.NewHandlers(httpServer)
-	httpServer.InitHandlers(allHandlers)
 	// init middlewares
 	initMiddlewares(httpServer)
 	// Init routes
@@ -65,49 +61,49 @@ func initRoutes(server *server.Server) {
 	router := server.Router
 	router.Route("/task", func(r chi.Router) {
 		// get all tasks
-		r.Get("/", server.Handlers.GetTasksHandler)
+		r.Get("/", server.TaskHandlers.GetTasksHandler)
 		// get task by id
-		r.Get("/{id:\\d*}", server.Handlers.GetTaskHandler)
+		r.Get("/{id:\\d*}", server.TaskHandlers.GetTaskHandler)
 		// get all tasks by tag or tags list with different modes.
 		// full - returns tasks who have  includes specified tag or tags list in the task tags.
 		// short - returns tasks who have only specified tag or tags list included in the task tags.
 		// tags - in query using , as separator
 		// due - in query format: 2006-01-02T15:04:05Z
 		r.Route("/tag", func(r chi.Router) {
-			r.Get("/{mode:(?:short|full)}/", server.Handlers.GetTasksByModeAndTagHandler)
-			r.Get("/", server.Handlers.GetTasksByTagHandler)
+			r.Get("/{mode:(?:short|full)}/", server.TaskHandlers.GetTasksByModeAndTagHandler)
+			r.Get("/", server.TaskHandlers.GetTasksByTagHandler)
 		})
 		// get tasks by due date
-		r.Get("/{due:[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}(?::|%3A)[0-9]{2}(?::|%3A)[0-9]{2}Z}", server.Handlers.GetTasksByDueDateHandler)
+		r.Get("/{due:[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}(?::|%3A)[0-9]{2}(?::|%3A)[0-9]{2}Z}", server.TaskHandlers.GetTasksByDueDateHandler)
 
 		// create new task using request body data
 		// request body example:
 		// {"text": "text", "tags": ["tag", "tag", "tag"], "due": "2021-01-01 00:00:00"}
-		r.Post("/", server.Handlers.CreateTaskHandler)
+		r.Post("/", server.TaskHandlers.CreateTaskHandler)
 
 		// delete task by id
-		r.Delete("/{id:[0-9]*}", server.Handlers.DeleteTaskHandler)
+		r.Delete("/{id:[0-9]*}", server.TaskHandlers.DeleteTaskHandler)
 		// delete all tasks
-		r.Delete("/", server.Handlers.DeleteTasksHandler)
+		r.Delete("/", server.TaskHandlers.DeleteTasksHandler)
 	})
 	router.Route("/tag", func(r chi.Router) {
 		// get all tags
-		r.Get("/", server.Handlers.GetTagsHandler)
+		r.Get("/", server.TaskHandlers.GetTagsHandler)
 		// get tag by name
-		r.Get("/{name:[A-Za-z]+}", server.Handlers.GetTagHandler)
+		r.Get("/{name:[A-Za-z]+}", server.TaskHandlers.GetTagHandler)
 
 		// create new tag using request body data
 		// request body example:
 		// {"name": "name"}
-		r.Post("/", server.Handlers.CreateTagHandler)
+		r.Post("/", server.TaskHandlers.CreateTagHandler)
 
 		// delete all tags
-		r.Delete("/", server.Handlers.DeleteTagsHandler)
+		r.Delete("/", server.TaskHandlers.DeleteTagsHandler)
 		// delete tag by name
-		r.Delete("/{name:[A-Za-z]+}", server.Handlers.DeleteTagHandler)
+		r.Delete("/{name:[A-Za-z]+}", server.TaskHandlers.DeleteTagHandler)
 	})
-	router.MethodNotAllowed(server.Handlers.MethodNotAllowedHandler)
-	router.NotFound(server.Handlers.NotFoundHandler)
+	router.MethodNotAllowed(server.TaskHandlers.MethodNotAllowedHandler)
+	router.NotFound(server.TaskHandlers.NotFoundHandler)
 	router.Get("/swagger/*", httpSwagger.Handler())
 
 }

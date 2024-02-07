@@ -27,7 +27,7 @@ import (
 // @Failure 500 {object} response.ErrorResponse
 // @Router /task/{id} [get]
 // Context from Function internal/server/server/handlers/task.go:handlers.*Handlers.GetTaskHandler
-func (h *Handlers) GetTaskHandler(w http.ResponseWriter, r *http.Request) {
+func (h *TaskHandler) GetTaskHandler(w http.ResponseWriter, r *http.Request) {
 	idString := chi.URLParam(r, "id")
 	idInt, err := strconv.Atoi(idString)
 	if err != nil {
@@ -62,7 +62,7 @@ func (h *Handlers) GetTaskHandler(w http.ResponseWriter, r *http.Request) {
 // @Failure 500 {object} response.ErrorResponse
 // @Router /task/ [get]
 // Context from Function internal/server/server/handlers/task.go:handlers.*Handlers.GetTasksHandler
-func (h *Handlers) GetTasksHandler(w http.ResponseWriter, r *http.Request) {
+func (h *TaskHandler) GetTasksHandler(w http.ResponseWriter, r *http.Request) {
 	allTasks, err := h.Db.GetAllTasks()
 
 	if err != nil {
@@ -90,7 +90,7 @@ func (h *Handlers) GetTasksHandler(w http.ResponseWriter, r *http.Request) {
 // @Failure 500 {object} response.ErrorResponse
 // @Router /task/ [post]
 // Context from Function internal/server/server/handlers/task.go:handlers.*Handlers.CreateTaskHandler
-func (h *Handlers) CreateTaskHandler(w http.ResponseWriter, r *http.Request) {
+func (h *TaskHandler) CreateTaskHandler(w http.ResponseWriter, r *http.Request) {
 	var requestData request.TaskRequest
 
 	err := h.DecodeJSON(r.Body, &requestData)
@@ -118,7 +118,7 @@ func (h *Handlers) CreateTaskHandler(w http.ResponseWriter, r *http.Request) {
 	h.JSON(w, response.OK())
 }
 
-func (h *Handlers) UpdateTaskHandler(w http.ResponseWriter, r *http.Request) {
+func (h *TaskHandler) UpdateTaskHandler(w http.ResponseWriter, r *http.Request) {
 	///
 }
 
@@ -133,7 +133,7 @@ func (h *Handlers) UpdateTaskHandler(w http.ResponseWriter, r *http.Request) {
 // @Failure 500 {object} response.ErrorResponse
 // @Router /task/ [delete]
 // Context from Function internal/server/server/handlers/task.go:handlers.*Handlers.DeleteTasksHandler
-func (h *Handlers) DeleteTasksHandler(w http.ResponseWriter, r *http.Request) {
+func (h *TaskHandler) DeleteTasksHandler(w http.ResponseWriter, r *http.Request) {
 	// Todo check admin rules
 
 	err := h.Db.DeleteTask()
@@ -163,7 +163,7 @@ func (h *Handlers) DeleteTasksHandler(w http.ResponseWriter, r *http.Request) {
 // @Failure 500 {object} response.ErrorResponse
 // @Router /task/{id} [delete]
 // Context from Function internal/server/server/handlers/task.go:handlers.*Handlers.DeleteTaskHandler
-func (h *Handlers) DeleteTaskHandler(w http.ResponseWriter, r *http.Request) {
+func (h *TaskHandler) DeleteTaskHandler(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
 
 	err := h.Db.DeleteTask(id)
@@ -192,7 +192,7 @@ func (h *Handlers) DeleteTaskHandler(w http.ResponseWriter, r *http.Request) {
 // @Failure 500 {object} response.ErrorResponse
 // @Router /task/{due} [get]
 // Context from Function internal/server/server/handlers/task.go:handlers.*Handlers.GetTasksByDueDateHandler
-func (h *Handlers) GetTasksByDueDateHandler(w http.ResponseWriter, r *http.Request) {
+func (h *TaskHandler) GetTasksByDueDateHandler(w http.ResponseWriter, r *http.Request) {
 	due := chi.URLParam(r, "due")
 	// INFO: use it because swagger (is shit) request using '%3A' instead of ':'
 	due = strings.Replace(due, "%3A", ":", -1)

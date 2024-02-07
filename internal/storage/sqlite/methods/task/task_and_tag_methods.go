@@ -1,15 +1,15 @@
-package sqlite
+package repository
 
 import (
 	"fmt"
 	"strings"
 	"time"
-	"web/internal/storage"
+	"web/internal/storage/models"
 )
 
 // Methods for get tasks by tag
 
-func (s *StoreSqlite) GetTasksByTagFull(tagList []string) (*storage.Tasks, error) {
+func (s *TaskTagMethods) GetTasksByTagFull(tagList []string) (*models.Tasks, error) {
 	const op = "sqlite.GetAllTasksByTag"
 
 	// create query and args for this query
@@ -25,7 +25,7 @@ func (s *StoreSqlite) GetTasksByTagFull(tagList []string) (*storage.Tasks, error
 	return getTasksFromRows(rows)
 }
 
-func (s *StoreSqlite) GetTasksByTagShort(tagList []string) (*storage.Tasks, error) {
+func (s *TaskTagMethods) GetTasksByTagShort(tagList []string) (*models.Tasks, error) {
 	const op = "sqlite.GetTaskByTag"
 
 	// create query and args for this query
@@ -128,7 +128,7 @@ func buildQueryFull(tagList []string) (string, []interface{}) {
 
 // Methods for get tasks by tag and due date
 
-func (s *StoreSqlite) GetTasksByDueAndTagFull(tags []string, dueDate *time.Time) (*storage.Tasks, error) {
+func (s *TaskTagMethods) GetTasksByDueAndTagFull(tags []string, dueDate *time.Time) (*models.Tasks, error) {
 	const op = "sqlite.GetTasksByDueAndTag"
 	query, args := buildQueryTagDueFull(tags, dueDate)
 
@@ -141,7 +141,7 @@ func (s *StoreSqlite) GetTasksByDueAndTagFull(tags []string, dueDate *time.Time)
 	return getTasksFromRows(rows)
 }
 
-func (s *StoreSqlite) GetTasksByDueAndTagShort(tagList []string, dueDate *time.Time) (*storage.Tasks, error) {
+func (s *TaskTagMethods) GetTasksByDueAndTagShort(tagList []string, dueDate *time.Time) (*models.Tasks, error) {
 	const op = "sqlite.GetTaskByDueAndTag"
 
 	query, args := buildQueryTagDueShort(tagList, dueDate)
@@ -235,7 +235,7 @@ func buildQueryTagDueShort(tagList []string, dueDate *time.Time) (string, []inte
 	return query, args
 }
 
-func (s *StoreSqlite) GetTasksByTag(tagList []string) (*storage.Tasks, error) {
+func (s *TaskTagMethods) GetTasksByTag(tagList []string) (*models.Tasks, error) {
 	tagString := strings.Trim(strings.Repeat("?,", len(tagList)), ",")
 	query := fmt.Sprintf(`
 										SELECT DISTINCT t1.id,t1.text,t1.tags,t1.due
@@ -256,7 +256,7 @@ func (s *StoreSqlite) GetTasksByTag(tagList []string) (*storage.Tasks, error) {
 	return getTasksFromRows(rows)
 }
 
-func (s *StoreSqlite) GetTasksByTagAndDue(tagList []string, dueDate *time.Time) (*storage.Tasks, error) {
+func (s *TaskTagMethods) GetTasksByTagAndDue(tagList []string, dueDate *time.Time) (*models.Tasks, error) {
 	tagString := strings.Trim(strings.Repeat("?,", len(tagList)), ",")
 
 	query := fmt.Sprintf(`
